@@ -8,3 +8,10 @@ pdf_content.txt
 read.html
 read_files/
 app/
+.venv/
+
+# macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
