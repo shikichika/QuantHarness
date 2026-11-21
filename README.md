@@ -1,3 +1,31 @@
+> [!NOTE]
+> このリポジトリは [Y-Research-SBU/QuantHarness](https://github.com/Y-Research-SBU/QuantHarness) の fork です。日本株での検証用に手を加えています。
+> 区切り線より下は本家の README をそのまま残しています。
+
+## QuantHarness の判断の流れ
+
+```
+直近45本の価格データ（四本値）
+   │
+   ├─①【Indicator】Pythonで計算 → LLMが解釈
+   │    TA-Libで RSI・MACD・RoC・ストキャスティクス・ウィリアムズ%R を計算
+   │    → 数値の列をLLMに渡して「これをどう解釈する？」→ 文章のレポート
+   │
+   ├─②【Pattern】Pythonで画像化 → LLMが見る
+   │    mplfinanceでローソク足チャートの画像を作る
+   │    → 画像と「パターン一覧（三角保ち合い、ダブルボトム…）」をLLMに渡して
+   │      「どれに当てはまる？」→ 文章のレポート
+   │
+   ├─③【Trend】Pythonで線を引く → LLMが見る
+   │    最小二乗法で支持線（青）と抵抗線（赤）を引いた画像を作る
+   │    → 「価格は線で跳ね返ってる？突き抜けてる？上・下・横ばいどれ？」→ 文章のレポート
+   │
+   └─④【Decision】LLMが3つのレポートを読んで判断
+        「LONGかSHORTか。様子見は禁止。理由とリスクリワード比（1.2〜1.8）をJSONで」
+```
+
+---
+
 <div align="center">
 
 ![QuantHarness Banner](assets/banner.png)
