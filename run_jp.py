@@ -29,6 +29,7 @@ from default_config import DEFAULT_CONFIG
 from trading_graph import TradingGraph
 
 BARS = 45  # 論文・Web UI と同じく直近45本を渡す
+FORECAST_BARS = 3  # 何本先を予想させるか（論文と同じ）。evaluate_jp.py もこの本数で採点する
 PERIOD_FOR_INTERVAL = {"1h": "60d", "4h": "60d", "1d": "6mo", "1wk": "5y"}
 BAR_LENGTH = {"1h": pd.Timedelta(hours=1), "4h": pd.Timedelta(hours=4), "1d": pd.Timedelta(days=1), "1wk": pd.Timedelta(days=7)}
 DEFAULT_MODELS = {
@@ -166,6 +167,7 @@ def main():
         "time_frame": {"1h": "1hour", "4h": "4hour", "1d": "1day", "1wk": "1 week"}[args.interval],
         "stock_name": name,
         "output_language": args.lang,
+        "forecast_bars": FORECAST_BARS,
         "pattern_image": static_util.generate_kline_image(kline)["pattern_image"],
         "trend_image": static_util.generate_trend_image(kline)["trend_image"],
     }

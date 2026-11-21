@@ -24,12 +24,25 @@ def create_final_trade_decider(llm):
             else ""
         )
 
+        # 予想する本数。指定がなければ本家のままの（N を決めない）書き方にする
+        forecast_bars = state.get("forecast_bars")
+        if forecast_bars:
+            horizon_note = (
+                f"Your decision must forecast the market move over exactly the **next {forecast_bars} candlesticks** "
+                f"(N = {forecast_bars}) of the {time_frame} chart. Your decision is evaluated on those {forecast_bars} candlesticks, "
+                f"so set \"forecast_horizon\" to the next {forecast_bars} candlesticks."
+            )
+        else:
+            horizon_note = (
+                "Your decision should forecast the market move over the **next N candlesticks**, where:\n"
+                "            - For example: TIME_FRAME = 15min, N = 1 → Predict the next 15 minutes.\n"
+                "            - TIME_FRAME = 4hour, N = 1 → Predict the next 4 hours."
+            )
+
         # --- System prompt for LLM ---
         prompt = f"""You are a high-frequency quantitative trading (HFT) analyst operating on the current {time_frame} K-line chart for {stock_name}. Your task is to issue an **immediate execution order**: **LONG** or **SHORT**. ⚠️ HOLD is prohibited due to HFT constraints.
 
-            Your decision should forecast the market move over the **next N candlesticks**, where:
-            - For example: TIME_FRAME = 15min, N = 1 → Predict the next 15 minutes.
-            - TIME_FRAME = 4hour, N = 1 → Predict the next 4 hours.
+            {horizon_note}
 
             Base your decision on the combined strength, alignment, and timing of the following three reports:
 
