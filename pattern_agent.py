@@ -182,7 +182,7 @@ def create_pattern_agent(tool_llm, graph_llm, toolkit):
 
         return {
             "messages": messages + [final_response],
-            "pattern_report": final_response.content,
+            "pattern_report": final_response.text,
         }
 
     return pattern_agent_node

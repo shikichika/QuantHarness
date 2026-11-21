@@ -102,7 +102,7 @@ def create_final_trade_decider(llm):
         response = llm.invoke(prompt)
 
         return {
-            "final_trade_decision": response.content,
+            "final_trade_decision": response.text,
             "messages": [response],
             "decision_prompt": prompt,
         }
