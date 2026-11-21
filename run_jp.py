@@ -33,7 +33,7 @@ FORECAST_BARS = 3  # 何本先を予想させるか（論文と同じ）。evalu
 PERIOD_FOR_INTERVAL = {"1h": "60d", "4h": "60d", "1d": "6mo", "1wk": "5y"}
 BAR_LENGTH = {"1h": pd.Timedelta(hours=1), "4h": pd.Timedelta(hours=4), "1d": pd.Timedelta(days=1), "1wk": pd.Timedelta(days=7)}
 DEFAULT_MODELS = {
-    "anthropic": "claude-sonnet-5-5",
+    "anthropic": "claude-haiku-5-5",  # 予算の都合で Haiku
     "openai": "gpt-4o",
 }
 
