@@ -105,7 +105,7 @@ def create_indicator_agent(llm, toolkit):
 
         # Extract content - handle both string and empty content cases
         if final_response:
-            report_content = final_response.content
+            report_content = final_response.text  # thinking ブロックを除いた本文だけ
             # If content is empty or None, try to get text from recent messages
             if not report_content or (isinstance(report_content, str) and not report_content.strip()):
                 # Check if there's any text content in the messages (skip tool calls)
