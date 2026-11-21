@@ -20,6 +20,10 @@ on:
         default: predict
         type: choice
         options: [predict, evaluate]
+      skip_stale:
+        description: "休場日はスキップする（動作確認で休日に動かすならオフ）"
+        default: true
+        type: boolean
 
 permissions:
   contents: write
@@ -83,10 +87,13 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           failed=""
+          # 定期実行では inputs が空なので、休場日スキップは常に有効
+          stale_flag="--skip-stale"
+          if [ "${{ inputs.skip_stale }}" = "false" ]; then stale_flag=""; fi
           for t in $TICKERS; do
             echo "::group::$t"
             uv run python run_jp.py "$t" --interval "$INTERVAL" --log data/decisions.jsonl \
-              --drop-partial --skip-stale || failed="$failed $t"
+              --drop-partial $stale_flag || failed="$failed $t"
             echo "::endgroup::"
           done
           echo "FAILED=$failed" >> "$GITHUB_ENV"
