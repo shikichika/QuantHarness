@@ -1,0 +1,114 @@
+# 日本株で1日3回予想し、引け後に答え合わせする。記録は data ブランチに貯める。
+#
+# 準備:
+#   1. Settings > Secrets and variables > Actions に ANTHROPIC_API_KEY を登録
+#   2. fork では Actions がオフになっているので、Actions タブで有効化する
+#   3. 期間は END_DATE（日本時間の日付）まで。過ぎると何もしない
+name: JP forecast
+
+on:
+  schedule:
+    # cron は UTC（日本時間 -9時間）。GitHub の都合で数分〜十数分遅れることがある
+    - cron: "5 1 * * 1-5"   # 10:05 JST 予想（最終足 09:00）
+    - cron: "5 4 * * 1-5"   # 13:05 JST 予想（最終足 12:00 = 後場寄り〜13:00）
+    - cron: "5 6 * * 1-5"   # 15:05 JST 予想（最終足 14:00）
+    - cron: "30 7 * * 1-5"  # 16:30 JST 答え合わせ
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "predict か evaluate"
+        default: predict
+        type: choice
+        options: [predict, evaluate]
+
+permissions:
+  contents: write
+
+# 予想と答え合わせが同時に data ブランチへ push しないようにする
+concurrency:
+  group: data-branch
+  cancel-in-progress: false
+
+env:
+  TICKERS: "7203.T 6758.T 8306.T 9984.T 8035.T 1321.T"
+  INTERVAL: "1h"
+  END_DATE: "2026-12-23"
+  TZ: Asia/Tokyo
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Decide task
+        id: task
+        run: |
+          if [ "$(date +%F)" \> "$END_DATE" ]; then
+            echo "期間終了（END_DATE=$END_DATE）"; echo "task=none" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "task=${{ inputs.task }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 7 * * 1-5" ]; then
+            echo "task=evaluate" >> "$GITHUB_OUTPUT"
+          else
+            echo "task=predict" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.task.outputs.task != 'none'
+
+      - uses: astral-sh/setup-uv@v5
+        if: steps.task.outputs.task != 'none'
+
+      - name: Install
+        if: steps.task.outputs.task != 'none'
+        run: uv sync --frozen
+
+      - name: Check out data branch
+        if: steps.task.outputs.task != 'none'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin data >/dev/null; then
+            git fetch --depth 1 origin data
+            git worktree add data FETCH_HEAD
+            git -C data switch -c data
+          else
+            git worktree add --orphan -b data data
+          fi
+
+      - name: Predict
+        if: steps.task.outputs.task == 'predict'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          failed=""
+          for t in $TICKERS; do
+            echo "::group::$t"
+            uv run python run_jp.py "$t" --interval "$INTERVAL" --log data/decisions.jsonl \
+              --drop-partial --skip-stale || failed="$failed $t"
+            echo "::endgroup::"
+          done
+          echo "FAILED=$failed" >> "$GITHUB_ENV"
+
+      - name: Evaluate
+        if: steps.task.outputs.task == 'evaluate'
+        run: |
+          if [ ! -f data/decisions.jsonl ]; then echo "記録がまだありません"; exit 0; fi
+          uv run python evaluate_jp.py --log data/decisions.jsonl --out data/evaluation.csv \
+            | tee data/evaluation.txt
+
+      - name: Commit to data branch
+        if: steps.task.outputs.task != 'none'
+        run: |
+          cd data
+          git add -A
+          if git diff --cached --quiet; then echo "変更なし"; exit 0; fi
+          git commit -m "${{ steps.task.outputs.task }}: $(date '+%F %H:%M') JST"
+          git push origin data
+
+      - name: Report failures
+        if: env.FAILED != ''
+        run: |
+          echo "::error::失敗した銘柄:${FAILED}"
+          exit 1

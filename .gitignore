@@ -15,3 +15,9 @@ app/
 ._*
 .AppleDouble
 .LSOverride
+
+# 定期実行の記録（data ブランチで管理）とローカル出力
+data/
+decisions.jsonl
+result.txt
+evaluation.csv
