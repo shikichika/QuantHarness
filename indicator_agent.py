@@ -25,6 +25,8 @@ def create_indicator_agent(llm, toolkit):
             toolkit.compute_willr,
         ]
         time_frame = state["time_frame"]
+        output_language = state.get("output_language")
+        language_note = f"Write your analysis in {output_language}.\n" if output_language else ""
         # --- System prompt for LLM ---
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -37,7 +39,8 @@ def create_indicator_agent(llm, toolkit):
                     f"⚠️ The OHLC data provided is from a {time_frame} intervals, reflecting recent market behavior. "
                     "You must interpret this data quickly and accurately.\n\n"
                     "Here is the OHLC data:\n{kline_data}.\n\n"
-                    "Call necessary tools, and analyze the results.\n",
+                    "Call necessary tools, and analyze the results.\n"
+                    + language_note,
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]

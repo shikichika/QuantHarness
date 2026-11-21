@@ -16,6 +16,13 @@ def create_final_trade_decider(llm):
         trend_report = state["trend_report"]
         time_frame = state["time_frame"]
         stock_name = state["stock_name"]
+        output_language = state.get("output_language")
+        language_note = (
+            f"Write the values of \"forecast_horizon\" and \"justification\" in {output_language}. "
+            "Keep the JSON keys and the \"decision\" value (LONG or SHORT) in English.\n"
+            if output_language
+            else ""
+        )
 
         # --- System prompt for LLM ---
         prompt = f"""You are a high-frequency quantitative trading (HFT) analyst operating on the current {time_frame} K-line chart for {stock_name}. Your task is to issue an **immediate execution order**: **LONG** or **SHORT**. ⚠️ HOLD is prohibited due to HFT constraints.
@@ -78,7 +85,7 @@ def create_final_trade_decider(llm):
             "justification": "<Concise, confirmed reasoning based on reports>",
             "risk_reward_ratio": "<float between 1.2 and 1.8>",
             }}
-
+            {language_note}
             --------
             **Technical Indicator Report**  
             {indicator_report}

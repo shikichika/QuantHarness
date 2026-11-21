@@ -33,6 +33,8 @@ def create_pattern_agent(tool_llm, graph_llm, toolkit):
         # --- Tool and pattern definitions ---
         tools = [toolkit.generate_kline_image]
         time_frame = state["time_frame"]
+        output_language = state.get("output_language")
+        language_note = f"\n\nWrite your entire response in {output_language}." if output_language else ""
         pattern_text = """
         Please refer to the following classic candlestick patterns:
 
@@ -130,6 +132,7 @@ def create_pattern_agent(tool_llm, graph_llm, toolkit):
                         f"{pattern_text}\n\n"
                         "Determine whether the chart matches any of the patterns listed. "
                         "Clearly name the matched pattern(s), and explain your reasoning based on structure, trend, and symmetry."
+                        f"{language_note}"
                     ),
                 },
                 {
