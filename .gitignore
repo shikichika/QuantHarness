@@ -1,0 +1,23 @@
+__pycache__/
+kline_chart.png
+trend_graph.png
+record.csv
+.vscode/settings.json
+ICLR2026_QuantHarness (18).pdf
+pdf_content.txt
+read.html
+read_files/
+app/
+.venv/
+
+# macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+# 定期実行の記録（data ブランチで管理）とローカル出力
+data/
+decisions.jsonl
+result.txt
+evaluation.csv
