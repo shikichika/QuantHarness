@@ -11,6 +11,7 @@ class IndicatorAgentState(TypedDict):
     ]
     time_frame: Annotated[str, "time period for k line data provided"]
     stock_name: Annotated[dict, "stock name for prompt"]
+    output_language: Annotated[str, "language for written reports, e.g. 'Japanese' (optional, default English)"]
 
     # Indicator Agent Tools output values (explicitly added per indicator)
     rsi: Annotated[List[float], "Relative Strength Index values"]

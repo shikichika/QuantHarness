@@ -42,6 +42,8 @@ def create_trend_agent(tool_llm, graph_llm, toolkit):
         # --- Tool definitions ---
         tools = [toolkit.generate_trend_image]
         time_frame = state["time_frame"]
+        output_language = state.get("output_language")
+        language_note = f"\n\nWrite your entire response in {output_language}." if output_language else ""
 
         # --- Check for precomputed image in state ---
         trend_image_b64 = state.get("trend_image")
@@ -106,6 +108,7 @@ def create_trend_agent(tool_llm, graph_llm, toolkit):
                         "Analyze how price interacts with these lines — are candles bouncing off, breaking through, or compressing between them?\n\n"
                         "Based on trendline slope, spacing, and recent K-line behavior, predict the likely short-term trend: **upward**, **downward**, or **sideways**. "
                         "Support your prediction with respect to prediction, reasoning, signals."
+                        f"{language_note}"
                     ),
                 },
                 {
