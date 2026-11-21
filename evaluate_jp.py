@@ -17,9 +17,9 @@ import json
 
 import pandas as pd
 
-from run_jp import load_yfinance
+from run_jp import FORECAST_BARS, load_yfinance
 
-HORIZON = 3
+HORIZON = FORECAST_BARS
 
 
 def main():
