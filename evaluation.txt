@@ -1,0 +1,9 @@
+ticker interval            last_bar decision status
+7203.T       1h 2026-11-20 15:00:00    SHORT    未確定
+6758.T       1h 2026-11-20 15:00:00    SHORT    未確定
+8306.T       1h 2026-11-20 15:00:00    SHORT    未確定
+9984.T       1h 2026-11-20 15:00:00    SHORT    未確定
+8035.T       1h 2026-11-20 15:00:00    SHORT    未確定
+1321.T       1h 2026-11-20 15:00:00    SHORT    未確定
+
+→ data/evaluation.csv に保存しました
